@@ -14,12 +14,18 @@ sealed class ApiException(message: String) : Throwable(message) {
     data object NetworkException : ApiException("Not connected")
     data object UnknownException: ApiException("Unknown exception")
 }
+interface ReadLog<out E> {
+    fun dump(): List<Pair<LocalDateTime, E>>
+}
+interface WriteLog<in E> {
+    fun log(response: NetworkResponse<*, E>)
+}
 
-class ErrorLogger<E : Throwable> {
+class ErrorLogger<in E: Throwable> : WriteLog<E>{
 
-    val errors = mutableListOf<Pair<LocalDateTime, E>>()
+    private val errors = mutableListOf<Pair<LocalDateTime, E>>()
 
-    fun log(response: NetworkResponse<*, E>) {
+    override fun log(response: NetworkResponse<*, E>) {
         if (response is Failure) {
             errors.add(response.responseDateTime to response.error)
         }
