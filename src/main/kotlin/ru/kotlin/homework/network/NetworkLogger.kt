@@ -17,7 +17,7 @@ sealed class ApiException(message: String) : Throwable(message) {
 
 class ErrorLogger<E : Throwable> {
 
-    val errors = mutableListOf<Pair<LocalDateTime, E>>()
+    private val errors = mutableListOf<Pair<LocalDateTime, E>>()
 
     fun log(response: NetworkResponse<*, E>) {
         if (response is Failure) {
@@ -30,6 +30,10 @@ class ErrorLogger<E : Throwable> {
             println("Error at $date: ${error.message}")
         }
     }
+
+    fun dump(): List<Pair<LocalDateTime, E>> {
+        return errors
+    }
 }
 
 fun processThrowables(logger: ErrorLogger<Throwable>) {
@@ -40,9 +44,10 @@ fun processThrowables(logger: ErrorLogger<Throwable>) {
     logger.log(Failure(IllegalArgumentException("Something unexpected")))
 
     logger.dumpLog()
+    println(logger.dump())
 }
 
-fun processApiErrors(apiExceptionLogger: ErrorLogger<ApiException>) {
+fun processApiErrors(apiExceptionLogger: ErrorLogger<in ApiException>) {
     apiExceptionLogger.log(Success("Success"))
     Thread.sleep(100)
     apiExceptionLogger.log(Success(Circle))
@@ -50,6 +55,7 @@ fun processApiErrors(apiExceptionLogger: ErrorLogger<ApiException>) {
     apiExceptionLogger.log(Failure(ApiException.NetworkException))
 
     apiExceptionLogger.dumpLog()
+    println(apiExceptionLogger.dump())
 }
 
 fun main() {
