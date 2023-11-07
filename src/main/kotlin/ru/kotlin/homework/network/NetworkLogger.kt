@@ -15,24 +15,38 @@ sealed class ApiException(message: String) : Throwable(message) {
     data object UnknownException: ApiException("Unknown exception")
 }
 
-class ErrorLogger<E : Throwable> {
+interface Logger<in E>{
+    fun log(response: NetworkResponse<*, E>)
 
-    val errors = mutableListOf<Pair<LocalDateTime, E>>()
+    fun dumpLog()
+}
 
-    fun log(response: NetworkResponse<*, E>) {
+interface Dumper<out E>{
+    fun dump():List<Pair<LocalDateTime, E>>
+}
+
+class ErrorLogger<E : Throwable>: Logger<E>, Dumper<E> {
+
+    private val errors = mutableListOf<Pair<LocalDateTime, E>>()
+
+    override fun log(response: NetworkResponse<*, E>) {
         if (response is Failure) {
             errors.add(response.responseDateTime to response.error)
         }
     }
 
-    fun dumpLog() {
+    override fun dumpLog() {
         errors.forEach { (date, error) ->
             println("Error at $date: ${error.message}")
         }
     }
+
+    override fun dump(): List<Pair<LocalDateTime, E>> {
+        return errors
+    }
 }
 
-fun processThrowables(logger: ErrorLogger<Throwable>) {
+fun processThrowables(logger: Logger<Throwable>) {
     logger.log(Success("Success"))
     Thread.sleep(100)
     logger.log(Success(Circle))
@@ -42,7 +56,7 @@ fun processThrowables(logger: ErrorLogger<Throwable>) {
     logger.dumpLog()
 }
 
-fun processApiErrors(apiExceptionLogger: ErrorLogger<ApiException>) {
+fun processApiErrors(apiExceptionLogger: Logger<ApiException>) {
     apiExceptionLogger.log(Success("Success"))
     Thread.sleep(100)
     apiExceptionLogger.log(Success(Circle))
@@ -60,5 +74,8 @@ fun main() {
 
     println("Processing Api:")
     processApiErrors(logger)
+
+    val records = logger.dump()
+    println("All records: $records")
 }
 
