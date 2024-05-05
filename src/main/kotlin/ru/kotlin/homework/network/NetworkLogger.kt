@@ -15,9 +15,9 @@ sealed class ApiException(message: String) : Throwable(message) {
     data object UnknownException: ApiException("Unknown exception")
 }
 
-class ErrorLogger<E : Throwable> {
+class ErrorLogger<in E : Throwable> {
 
-    val errors = mutableListOf<Pair<LocalDateTime, E>>()
+    private val errors = mutableListOf<Pair<LocalDateTime, E>>()
 
     fun log(response: NetworkResponse<*, E>) {
         if (response is Failure) {
@@ -42,7 +42,7 @@ fun processThrowables(logger: ErrorLogger<Throwable>) {
     logger.dumpLog()
 }
 
-fun processApiErrors(apiExceptionLogger: ErrorLogger<ApiException>) {
+fun processApiErrors(apiExceptionLogger: ErrorLogger<ApiException>)  { // (apiExceptionLogger: ErrorLogger<ApiException>)
     apiExceptionLogger.log(Success("Success"))
     Thread.sleep(100)
     apiExceptionLogger.log(Success(Circle))
@@ -54,6 +54,7 @@ fun processApiErrors(apiExceptionLogger: ErrorLogger<ApiException>) {
 
 fun main() {
     val logger = ErrorLogger<Throwable>()
+
 
     println("Processing Throwable:")
     processThrowables(logger)
