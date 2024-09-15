@@ -30,6 +30,8 @@ class ErrorLogger<in E: Throwable> {
             println("Error at $date: ${error.message}")
         }
     }
+
+    fun dump(): List<Pair<LocalDateTime, Throwable>> = errors
 }
 
 fun processThrowables(logger: ErrorLogger<Throwable>) {
@@ -60,5 +62,7 @@ fun main() {
 
     println("Processing Api:")
     processApiErrors(logger)
+
+    println(logger.dump())
 }
 
