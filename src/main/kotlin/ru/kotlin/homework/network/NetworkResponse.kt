@@ -9,19 +9,19 @@ import java.time.LocalDateTime
 /**
  * Network result
  */
-sealed class NetworkResponse<out T, out R> {
+sealed class NetworkResponse<T, R> {
     val responseDateTime: LocalDateTime = LocalDateTime.now()
 }
 
 /**
  * Network success
  */
-data class Success<out T>(val resp: T): NetworkResponse<T, Nothing>()
+data class Success<T, R>(val resp: T): NetworkResponse<T, R>()
 
 /**
  * Network error
  */
-data class Failure<R>(val error: R): NetworkResponse<Nothing, R>()
+data class Failure<T, R>(val error: R): NetworkResponse<T, R>()
 
 val s1 = Success("Message")
 val r11: NetworkResponse<String, Error> = s1
