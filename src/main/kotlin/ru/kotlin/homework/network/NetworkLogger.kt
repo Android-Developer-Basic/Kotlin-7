@@ -30,6 +30,10 @@ class ErrorLogger<in E : Throwable> {
             println("Error at $date: ${error.toString()}")
         }
     }
+
+    fun dump(): List<Pair<LocalDateTime, *>> {
+            return errors
+    }
 }
 
 fun processThrowables(logger: ErrorLogger<Throwable>) {
@@ -60,5 +64,10 @@ fun main() {
 
     println("Processing Api:")
     processApiErrors(logger)
+
+    println("Getting error list:")
+    val list: List<Pair<LocalDateTime, *>> = logger.dump()
+    list.forEach(){ (date, error) ->
+        println("Error at $date: ${error.toString()}")}
 }
 
