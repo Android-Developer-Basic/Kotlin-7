@@ -24,7 +24,6 @@ data class Failure<R>(val error: R) : NetworkResponse<Nothing, R>()
 
 val s1 = Success("Message")
 
-
 val r11: Success<String> = s1
 val r12: Success<String> = s1
 

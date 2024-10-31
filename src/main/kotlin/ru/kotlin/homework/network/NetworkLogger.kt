@@ -33,7 +33,7 @@ class ErrorLogger<E : Throwable> {
         }
     }
 
-    fun dump(): MutableList<Pair<LocalDateTime, *>> {
+    fun dump(): List<Pair<LocalDateTime, *>> {
         return errors
     }
 
@@ -45,13 +45,11 @@ class ErrorLogger<E : Throwable> {
 }
 
 fun processThrowables(logger: ErrorLogger<Throwable>) {
-
     logger.log(Success("Success"))
     Thread.sleep(100)
     logger.log(Success(Circle))
     Thread.sleep(100)
     logger.log(Failure(IllegalArgumentException("Something unexpected")))
-
     logger.dumpLog()
 }
 
@@ -60,19 +58,12 @@ fun processApiErrors(apiExceptionLogger: ErrorLogger<*>) {
     Thread.sleep(100)
     apiExceptionLogger.log(Success(Circle))
     Thread.sleep(100)
-
-    val api = ApiException.NetworkException
-    val tt = Failure(api)
-
-
-    apiExceptionLogger.log(tt)
-
+    apiExceptionLogger.log(Failure(ApiException.NetworkException))
     apiExceptionLogger.dumpLog()
 }
 
 fun main() {
     val logger = ErrorLogger<Throwable>()
-
 
     println("Processing Throwable:")
     processThrowables(logger)
